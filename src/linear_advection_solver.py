@@ -11,9 +11,9 @@ def LaxWendroff(a,velocityField,tfinal,nsteps,output_path='./plots'): #u should 
     print "dx = %g,  dt = %g" % (dx,dt)
     print "Courant number is ",cfl
     
-    un=np.zeros(velocityField.mx)
+    un=np.zeros(velocityField.mesh.numberOfPoints+4)
     for n in range(0,nsteps):
-        for i in range(1,velocityField.mx-1):
+        for i in range(2,velocityField.mesh.numberOfPoints+2):
             un[i]=velocityField.u[n,i]-udtdx*(velocityField.u[n,i+1]-velocityField.u[n,i-1])/2+pow(udtdx,2)*(velocityField.u[n,i+1]-2*velocityField.u[n,i]+velocityField.u[n,i-1])/2
 
         velocityField.u=np.vstack([velocityField.u,un])
@@ -38,11 +38,12 @@ def nonlinear_solver(velocityField,tfinal,cfl,flux_function,output_path='./plots
         fplus = np.zeros(velocityField.mx)
         fminus = np.zeros(velocityField.mx)
         for i in range(0,mx): #compute fplus_j and fminux_j
-            fplus(j) = max(flux_function(u(n,i)))
-            fminus(j) = min(flux_function(u(n,i)))
+            fplus[j] = max(flux_function(u(n,i)))
+            fminus[j] = min(flux_function(u(n,i)))
         for i in range(1,velocityField.mx-1):#compute u
             #un[i]=velocityField.u[n,i]-udtdx*(velocityField.u[n,i+1]-velocityField.u[n,i-1])/2+pow(udtdx,2)*(velocityField.u[n,i+1]-2*velocityField.u[n,i]+velocityField.u[n,i-1])/2
-            un[i] = 
+            #un[i] = 
+            pass
 
         velocityField.u=np.vstack([velocityField.u,un])
 
