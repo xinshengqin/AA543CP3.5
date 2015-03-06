@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import os
 from mesh import *
+import math
 
 
 class velocityField(object):
@@ -123,3 +124,5 @@ def IC_stepFunction(xmin,xmax,xpeak,width,x):
         return 0
     else:
         return float(xpeak) 
+def IC_sin(xmin,xmax,amplitude,circle_frequency,x):
+    return amplitude*math.sin(circle_frequency*x)

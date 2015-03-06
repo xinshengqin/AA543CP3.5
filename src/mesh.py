@@ -34,7 +34,7 @@ class mesh(object):
             self.n2 = self.numberOfPoints - self.n1
             self.nmax = max(self.n1,self.n2)
             self.b = (2*self.nmax-3*self.ratio-1)/(self.ratio-1)
-            self.coordinates, self.gapSpaceDistribution, self.minimumDeltax= self.createNonuniformMesh()
+            self.coordinates, self.gapSpaceDistribution, self.minimumDeltaX= self.createNonuniformMesh()
         else:
             print "Wrong input."
 
