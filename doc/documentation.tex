@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+
+\usepackage{graphicx}
+\usepackage{amsmath,amsfonts,amssymb}
+
+\usepackage{hyperref}  % for urls and hyperlinks
+%\usepackage[pdftex]{graphicx} 
+\usepackage{caption}
+\usepackage{subcaption}
+%\usepackage{enumitem}
+
+
+\setlength{\textwidth}{6.2in}
+\setlength{\oddsidemargin}{0.3in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textheight}{8.7in}
+\setlength{\voffset}{-.7in}
+\setlength{\headsep}{26pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+
+\title{Documentation to the code for computer project 3 in AA543 and some thoughts}
+
+\author{Xinsheng Qin xsqin@uw.edu}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In this documentation, a detailed description to the code for computer project 3 in class AA543 is given.
+This code includes modules for mesh generation, applying boundary condition and initial condition, and solver for solving some partial difference equations (PDE). 
+At the end are some of my thoughts about this project.
+\end{abstract}
+
+\section{General Structure of the code}
+This code is designed to solve for fluid fields, if given a domain (currently only 1D is available), initial condition on the domain, boundary condition on the boundary and the governing equations to be solved.
+\par
+
+A \textbf{\textit{mesh}} object should be first defined and initialized to specify the domain. 
+Then initial condition is used to create a \textbf{\textit{velocityField}} object to specify a velocity field with initial value known. 
+Finally, the \textbf{\textit{velocityField}} object is passed to one of the solver function defined in \textbf{\textit{solver\_1d.py}} to solve for fluid field until a final time. 
+
+\section{Introduction to all modules in the code}
+    \subsection{\textbf{\textit{mesh.py}}}
+    
+    \subsection{\textbf{\textit{velocityField.py}}}
+    This file contains definition of \textbf{\textit{velocityField}} class.
+        \subsubsection{Attributes}
+        \begin{description}
+            \item[$\bullet$] \textbf{mesh} : \textbf{mesh}
+                \par
+                A mesh object on which the velocity field is described.
+            \item[$\bullet$] \textbf{u\_xmin} : \textbf{float}
+                \par
+                Velocity for left-most two ghost points at j=-1,0. For case where dirichlet boundary condition is chosen.
+            \item[$\bullet$] \textbf{u\_xmax} : \textbf{float}
+                \par
+                Velocity for right-most two ghost points at j=J+1,J+2. For case where dirichlet boundary condition is chosen.
+            \item[$\bullet$] \textbf{name} : \textbf{str}
+                \par
+                Name for this velocityField object.
+            \item[$\bullet$] \textbf{u0} : \textbf{list}
+                \par
+                A list contains velocity values at each grid point.
+            \item[$\bullet$] \textbf{u} : \textbf{numpy.array}
+                \par
+                A numpy array contains velocity values at each grid point and at each time step.
+                The \textit{n-th} row contains velocity values at each grid point at time step $n-1$
+                
+        \end{description}
+
+        \subsubsection{Methods}
+%        \begin{description}[style=unboxed]
+        \begin{description}
+            \item[$\bullet$]\textbf{\_\_init\_\_}(mesh, IC, IC\_para1, IC\_para2, BC='periodic",
+                \par
+                u\_xmin=None, u\_xmax=None, name='default\_velocityField')
+                \par
+                Constructor for the class. 
+            \item[$\bullet$] \textbf{applyBC}(%todo
+                \par
+        \end{description}
+    \subsection{\textbf{\textit{solver\_1d.py}}}
+\section{A Simple Sample to Demonstrate How to Implement the Code} 
+\section{My Thoughts on This Project}
+
+The code will be updated and new features will be added in. 
+All latest code is public at GitHub: https://github.com/xinshengqin/AA543CP3.5.git. 
+
+\end{document}
