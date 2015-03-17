@@ -46,7 +46,7 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
     \subsection{\textbf{\textit{mesh.py}}}
     
     \subsection{\textbf{\textit{velocityField.py}}}
-    This file contains definition of \textbf{\textit{velocityField}} class.
+    This file contains definition of \textbf{\textit{velocityField}} class and several functions for setting initial condition for the class.
         \subsubsection{Attributes}
         \begin{description}
             \item[$\bullet$] \textbf{mesh} : \textbf{mesh}
@@ -61,6 +61,9 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
             \item[$\bullet$] \textbf{name} : \textbf{str}
                 \par
                 Name for this velocityField object.
+            \item[$\bullet$] \textbf{BC} : \textbf{str}
+                \par
+                Boundary condition for this velocity field.
             \item[$\bullet$] \textbf{u0} : \textbf{list}
                 \par
                 A list contains velocity values at each grid point.
@@ -79,9 +82,53 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
                 u\_xmin=None, u\_xmax=None, name='default\_velocityField')
                 \par
                 Constructor for the class. 
-            \item[$\bullet$] \textbf{applyBC}(%todo
+            \item[$\bullet$] \textbf{applyBC}(i)
                 \par
+                This function assigns velocity values to 4 ghost points at time step $i$ according to value of the attribute \textbf{BC}. 
+                Three types of boundary conditions are available currently: periodic B.C., dirichlet B.C., neumann B.C.
+            \item[$\bullet$] \textbf{plot\_pointVsIndex}()
+                \par
+                Call matplotlib to plot the mesh. Save a png file plotting coordinates of each grid point versus its index in the list (index starts from 0) in current folder.
+            \item[$\bullet$] \textbf{plot\_gapSpaceIndex}()
+                \par
+                Call matplotlib to plot the mesh. Save a png file plotting distance between each two points versus index of first point in each pair in the list (index starts from 0) in current folder.
+            \item[$\bullet$] \textbf{plot\_uVsIndex}()
+                \par
+                Call matplotlib to plot the velocity field. Save a png file plotting velocity at each grid point versus index of the grid point in the list (index starts from 0) in current folder.
+            \item[$\bullet$] \textbf{plot\_uVsX}(i,filename)
+                \par
+                Call matplotlib to plot the velocity field. 
+                Save a png file with \textit{filename} as prefix of file name, plotting velocity at time step $i$ at each grid point versus coordinates of the grid point. 
+
         \end{description}
+        \subsubsection{Other Functions}
+        \begin{description}
+            \item[$\bullet$]\textbf{IC\_gaussian}(xmin, xmax, xpeak, width, x)
+                \par
+                A function to be passed to the \textbf{\textit{velocityField}} class. 
+                It will return velocity value at a grid point with coordinate $x$.
+                \par
+                \textit{xmin} is coordinate of the 1st grid point (j=1).
+                \textit{xmax} is coordinate of the last grid point (j=J).
+                \textit{xpeak} is coordinates of a grid point where peak of the gaussian wave should be located at.
+                \textit{width} control width of the gaussian wave.
+                \par
+                The equation used to describe the gaussian wave is 
+                $$ u(x) = 1 + exp({\frac{-10}{width}(\frac{(x-xpeak)*(xmax+xmin)}{xmax-xmin})^2}) $$
+
+            \item[$\bullet$]\textbf{IC\_stepFunction}(xmin xmax, xpeak, width, x)
+                \par
+                %todo
+            \item[$\bullet$]\textbf{IC\_sin}(xmin xmax, amplitude, circle\_frequency, x)
+                \par
+                A function to be passed to the \textbf{\textit{velocityField}} class. 
+                It will return velocity value at a grid point with coordinate $x$.
+                The equation used to describe velocity distribution is
+                $$ u(x) = amplitude*sin(circle_frequency*x) $$
+                Note: \textit{xmin} and \textit{xmax} are not used.
+
+        \end{description}
+
     \subsection{\textbf{\textit{solver\_1d.py}}}
 \section{A Simple Sample to Demonstrate How to Implement the Code} 
 \section{My Thoughts on This Project}
