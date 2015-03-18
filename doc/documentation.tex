@@ -44,7 +44,101 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
 
 \section{Introduction to all modules in the code}
     \subsection{\textbf{\textit{mesh.py}}}
-    
+    This file contains definition of \textbf{\textit{mesh}} class.
+        \subsubsection{Attributes}
+        \begin{description}
+            \item[$\bullet$] \textbf{startPoint} : \textbf{float}
+                \par
+		Coordinate of left-most grid point (j=1), excluding ghost points.
+            \item[$\bullet$] \textbf{endPoint} : \textbf{float}
+                \par
+		Coordinate of right-most grid point (j=J), excluding ghost points.
+            \item[$\bullet$] \textbf{name} : \textbf{str}
+                \par
+		Name for this mesh object.
+            \item[$\bullet$] \textbf{numberOfPoints} : \textbf{int}
+                \par
+		Total number of grid points for this mesh, excluding ghost points. 
+            \item[$\bullet$] \textbf{ratio} : \textbf{float}
+                \par
+		The ratio of maximum grid spacing to minimum grid spacing.
+            \item[$\bullet$] \textbf{Nonuniform} : \textbf{bool}
+                \par
+		A bool type variable specifying if this mesh is nonuniform or not.
+            \item[$\bullet$] \textbf{coordinates} : \textbf{list}
+                \par
+		A list containing coordinates for all grid points, including ghost points.
+            \item[$\bullet$] \textbf{gapSpaceDistribution} : \textbf{list}
+                \par
+		A list containing space between each two grid points, including ghost points.
+            \item[$\bullet$] \textbf{minimumDeltaX} : \textbf{float}
+                \par
+		Minimum grid space in this mesh.
+            \item[$\bullet$] \textbf{xclusteredPoint} : \textbf{float}
+                \par
+		For nonuniform mesh only. It specify coordinate of a point where the nonuniform mesh is clustered at.
+	\end{description}
+	\subsubsection{Methods}
+        \begin{description}
+	    \item[$\bullet$] \textbf{createUniformMesh}()
+                \par
+		This function builds uniform mesh and returns grip point coordinates and grid space.
+	    \item[$\bullet$] \textbf{createNonuniformMesh}()
+		\par
+		This function builds nonuniform mesh with algorithm introduced in \ref{sec:algorithm} and returns grip point coordinates and grid space.
+	    \item[$\bullet$] \textbf{plot\_pointVsIndex}()
+		\par
+                Call matplotlib to plot the mesh. Save a png file plotting coordinates of each grid point versus its index in the list (index starts from 0) in current folder.
+	    \item[$\bullet$] \textbf{plot\_gapSpaceVsIndex}()
+		\par
+                Call matplotlib to plot the mesh. Save a png file plotting distance between each two points versus index of first point in each pair in the list (index starts from 0) in current folder.
+	    \item[$\bullet$] \textbf{plot\_gapSpaceVsX}()
+		\par
+                Call matplotlib to plot the mesh. Save a png file plotting distance between each two points versus coordinate of first point in each pair in the list.
+	\end{description}
+	\subsubsection{Algorithm}\label{sec:algorithm}
+	    To generate a uniform grid is quite easy thus we mainly focus on how to generate a nonuniform below.\par
+	    Let's first divide the whole domain into two parts from the cluster point and mark the cluster point as $i=1$. According to the length fraction of left part and right part, we assign corresponding number of grid points in these two areas. 
+	    \begin{equation}
+		n_1 = \frac{x_c-x_1}{x_n-x_1}
+	    \end{equation}
+	    \begin{equation}
+		n_2 = n - n_1
+	    \end{equation}
+	    \begin{equation}
+		n_{max} = max\{n_1,n_2\}
+	    \end{equation}
+	    where, \par
+	    $n_1$ represent number of points to the left of cluster point.\par
+	    $n_2$ represent number of points to the right of cluster point. \par 
+	    $x_1$ is the coordinate of starting point of the domain. \par
+	    $x_2$ is the end point of the domain. \par
+	    Now let's assume right part is longer than left part.(If left part is longer, the code can tell and manipulate it in a similar way.) We mark the points in right part using index from $i=1,2\dots$ to $i=n_2$, where $i=1$ is the cluster point. \par
+	For each point in this region, we assume its coordinate can be computed using:\begin{equation}x_i=f(i)=i^2+bi \end{equation}\par
+	    Since we are given the degree of clustering, $\eta$, the coordinates must satisfy:
+	    \begin{equation}
+		\eta=\frac{f(n_2)-f(n_2-1)}{f(2)-f(1)}=\frac{2n_2-1+b}{2\times2-1+b}
+	    \end{equation}
+	    From this equation we can solve for parameter $b$:
+	    \begin{equation}
+		b=\frac{2n_2-1-3\eta}{\eta-1}
+	    \end{equation}
+	    Then we start to compute the coordinates of every point in right part using:
+	    \begin{equation}
+		\overline{f(i)^+}=x_c+[f(i)-f(1)], i=1,2,3,\dots n_2
+	    \end{equation}
+	    If we make the left part and right part symmetric with respect to cluster point, and mark the points in left part from right to left as $2,3,\dots,n_1+1$, we can use a similar function to compute the coordinate of the points in left part:
+	    \begin{equation}
+		\overline{f(i)^-}=x_c-[f(i)-f(1)], i=2,3,\dots n_1
+	    \end{equation}
+	    As a summary, the indices of all points from left to right are $n_1,n_1-1,\dots,3,2,1,2,3,\dots,n_2-1,n_2$. After computing all their coordinates using equation (7) or (8) and puting them in a list, we have a original grid. But we still need to scale and shift it into a specific range specified by input as start point and end point.\par
+	    Let's mark all points in the list with new indices: $1,2,3,\dots,n-1,n$.\par
+	    New coordinate of each point can be computed using:
+	    \begin{equation}
+		f(i)_{new}=x_{startpoint}+\frac{x_i-x_{startpoint}}{x_{endpoint}-x_{startpoint}},i=1,2,3,\dots,n-1,n
+	    \end{equation}
+	    Now we have a grid that fulfill the requirement. The $i$th element in the list is the coordinate of $i$th grid point.
+
     \subsection{\textbf{\textit{velocityField.py}}}
     This file contains definition of \textbf{\textit{velocityField}} class and several functions for setting initial condition for the class.
         \subsubsection{Attributes}
@@ -118,13 +212,17 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
 
             \item[$\bullet$]\textbf{IC\_stepFunction}(xmin xmax, xpeak, width, x)
                 \par
-                %todo
+		This function is used to produce a step function centered at x=0.
+		\textit{width} is the length of range in which the function has non-zero value.
+		\textit{xpeak} is peak value of the step function. (all points in $-width/2<x<width/2$ should be initialized with this value)
+                Note: \textit{xmin} and \textit{xmax} are not used.
             \item[$\bullet$]\textbf{IC\_sin}(xmin xmax, amplitude, circle\_frequency, x)
                 \par
                 A function to be passed to the \textbf{\textit{velocityField}} class. 
                 It will return velocity value at a grid point with coordinate $x$.
                 The equation used to describe velocity distribution is
                 $$ u(x) = amplitude*sin(circle_frequency*x) $$
+		\par
                 Note: \textit{xmin} and \textit{xmax} are not used.
 
         \end{description}
@@ -132,12 +230,41 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
     \subsection{\textbf{\textit{solver\_1d.py}}}
         This module defines several functions to numerically solve for solution of some PDEs.
         \par
-        Some flux functions are also defined. Choosing different flux functions will solve different PDEs.
         \subsubsection{Solver Functions}
         \begin{description}
-            \item[$\bullet$]\textbf{%todo
+	    \item[$\bullet$]\textbf{LaxWendroff}(a, velocityField, tfinal, nsteps, output\_path='./plots')
                 \par
-        \subsubsection{flux Functions}
+		This solver uses Lax-Wendroff method to solve time-dependent linear advection equation on a uniform grid explicitly.
+		It proceeds with the equation
+		$$
+		Q^{n+1}_i = Q^n_i - \frac{u\triangle t}{2\triangle x}(Q^n_{i+1} - Q^n_{i-1}) + (\frac{u\triangle t}{\triangle x})^2(\frac{Q^n_{i+1}-2Q^n_i+Q^n_{i-1}}{2})
+		$$
+		\textit{a} is propagating speed of the wave.
+		\textit{velocityField} is a \textbf{\textit{velocityField}} object.
+		\textit{tfinal} is final time of the simulation.
+		\textit{nsteps} is number of time steps.
+		\textit{output\_path} is a relative path to current folder where output of simulation should be written. 
+	    \item[$\bullet$]\textbf{nonlinear\_solver}(velocityField, tfinal, cfl, flux\_function, mu=0.001, output\_path='./plots')
+                \par
+		The equation to be solved is burger's equation
+		$$
+		u_t + (\frac{1}{2}u^2)_x = \mu u_{xx}
+		$$
+		where,$u$ is velocity, $\mu$ artificial viscosity.
+		Discretizing it gives us
+		$$
+		\frac{u^{n+1}_j-u^n_j}{\triangle t} + \frac{f^+_j-f^+_{j-1}}{x_j-x_{j-1}} + \frac{f^-_{j+1}-f^-_j}{x_{j+1}-x_{j}} = \mu {\nabla}_x (\frac{u_{j+1}-u_{j}}{x_{j+1}-x_j)}
+		$$
+		$$
+		    \frac{u^{n+1}_j-u^n_j}{\triangle t} + \frac{f^+_j-f^+_{j-1}}{x_j-x_{j-1}} + \frac{f^-_{j+1}-f^-_j}{x_{j+1}-x_{j}} = \frac{\mu}{x_{j+1}-x_j}(\frac{u_{j+1}-u_j}{x_{j+1}-x_j}-\frac{u_j-u_{j-1}}{xj-x_{j-1}}) 
+		$$
+		where $f^+ = max\{f,0\}$ and $f^- = min\{f,0\}$
+		\par
+		Rearranging the equation gives us
+		$$
+		u^{n+1}_j = u^n_j + \triangle t \Bigg[\frac{\mu}{x_{j+1}-x_j} \bigg(\frac{u_{j+1}-u_j}{x_{j+1}-x_j}-\frac{u_j-u_{j-1}}{x_j-x_{j-1}}\bigg)-\frac{f^+_j-f^+_{j-1}}{x_j-x_{j-1}} - \frac{f^-_{j+1}-f^-{j}}{x_{j+1}-x_j} \Bigg]
+		$$
+	\end{description}
 
 \section{A Simple Sample to Demonstrate How to Implement the Code} 
 \section{My Thoughts on This Project}
