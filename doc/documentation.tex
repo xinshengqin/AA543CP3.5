@@ -3,7 +3,8 @@
 \usepackage{graphicx}
 \usepackage{amsmath,amsfonts,amssymb}
 
-\usepackage{hyperref}  % for urls and hyperlinks
+%\usepackage{hyperref}  % for urls and hyperlinks
+\usepackage[hidelinks]{hyperref}
 %\usepackage[pdftex]{graphicx} 
 \usepackage{caption}
 \usepackage{subcaption}
@@ -19,12 +20,52 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
 
+%setting code style
+    \usepackage{listings}
+    %\usepackage[T1]{fontenc}%This makes me able to copy the underscore in code block
+    %\usepackage{listingsutf8}
+    \usepackage{color}
+
+    \definecolor{mygreen}{rgb}{0,0.6,0}
+    \definecolor{mygray}{rgb}{0.5,0.5,0.5}
+    \definecolor{mymauve}{rgb}{0.58,0,0.82}
+    \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+    \lstset{ %
+    backgroundcolor=\color{backcolour},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+    basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+    breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+    breaklines=true,                 % sets automatic line breaking
+    captionpos=b,                    % sets the caption-position to bottom
+    commentstyle=\color{mygreen},    % comment style
+    deletekeywords={...},            % if you want to delete keywords from the given language
+    escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+    extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+    frame=single,                    % adds a frame around the code
+    keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+    keywordstyle=\color{blue},       % keyword style
+    language=Python,                 % the language of the code
+    morekeywords={*,...},            % if you want to add more keywords to the set
+    numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+    numbersep=5pt,                   % how far the line-numbers are from the code
+    numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+    rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+    showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+    showstringspaces=false,          % underline spaces within strings only
+    showtabs=false,                  % show tabs within strings adding particular underscores
+    stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+    stringstyle=\color{mymauve},     % string literal style
+    tabsize=2,                       % sets default tabsize to 2 spaces
+    title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+    }
+
+\begin{document}
 
 \title{Documentation to the code for computer project 3 in AA543 and some thoughts}
 
 \author{Xinsheng Qin xsqin@uw.edu}
+\date{\today} %this tells LaTeX to use today's date
 
-\begin{document}
 
 \maketitle
 
@@ -33,6 +74,10 @@ In this documentation, a detailed description to the code for computer project 3
 This code includes modules for mesh generation, applying boundary condition and initial condition, and solver for solving some partial difference equations (PDE). 
 At the end are some of my thoughts about this project.
 \end{abstract}
+\newpage
+
+\tableofcontents
+\newpage
 
 \section{General Structure of the code}
 This code is designed to solve for fluid fields, if given a domain (currently only 1D is available), initial condition on the domain, boundary condition on the boundary and the governing equations to be solved.
@@ -267,8 +312,61 @@ Finally, the \textbf{\textit{velocityField}} object is passed to one of the solv
 	\end{description}
 
 \section{A Simple Sample to Demonstrate How to Implement the Code} 
-\section{My Thoughts on This Project}
+    Below is an demostration for how to use the module introduced above to solve simple problems in fluid.
+    \begin{enumerate}
+        \item Create a \textbf{\textit{mesh}} object by specifying its range and number of grid points.
+        \item Create a \textbf{\textit{velocityField}} object using the \textbf{\textit{mesh}} object above and specifying initial condition and boundary condition.
+        \item Call one of the solver functions, \textbf{nonlinear\_solver()}, to compute the problem and get output in specified directory.
+    \end{enumerate}
 
+    \begin{lstlisting}[frame=single]  % Start your code-block
+
+mesh1 = mesh(-1*math.pi,math.pi,101)
+velocityField1 = velocityField(mesh1,IC_sin,1,1,'periodic',0,0)
+cfl_desire = 0.9
+tfinal=3
+
+if not('output_problemB' in os.listdir('./')):
+    os.mkdir('output_problemA')
+mu=0.001
+nonlinear_solver(velocityField1,tfinal,cfl_desire,flux_function_burger,mu,'output_problemB')
+    \end{lstlisting}
+\section{My Thoughts on This Project}
+In my view, this project is the most challenging and interesting project among all assignents and project in this class. 
+\par
+It divides all module and procedures to solve CFD problem into several pieces and allow us to run through all components, though a real CFD code will have more powerful feature and not be limited to 1D problem. This is a most valuable experience for helping us to dig into compicated CFD code in the future.
+\par
+In CP3.1, we were required to build both uniform and nonuniform mesh. 
+The nonuniform mesh should be clustered at one point with specific cluster ratio. 
+Several algorithms can be applied to do this. 
+I got a opportunity to think thoroughly over this problem and discuss with my classmates as well. 
+Finally, I picked to use a polynomial to build my nonuniform mesh.
+In addition to simply creating a mesh, I also designed my code to be object oriented, which make it much easier to be modified in the future.
+\par
+In CP3.2, we needed to implement boundary conditions and initial conditions on our mesh.
+After consideration, I decided to defined a class call \textbf{\textit{velocityField}} to store velocity field based on a certain mesh.
+At the beginning, this object could only store velocity field at the beginning (t = 0). 
+When CP3.3 came, I found that a new feature of storing velocity field at each time step was required.
+Thus I added this feature to the class in CP3.3 
+\par
+In CP3.3, my code were required to actually solve a problem. 
+I defined a solver function, which can actually solve certain equations based on the \textbf{\textit{velocityField}} and \textbf{\textit{mesh}} classes before.
+At this stage, the two classes built before were also tailored according to the requirement.
+But since all codes are written in a object-oriented way, modification and adding feature is quite easy.
+Now a basic frame for 1D CFD problem have been set up. 
+Whatever equations we want to solve in the future can be easy to handled by defining new solvers.
+\par
+In CP3.4, the only difference from before for requirement is we are required to solve for another equation, burger's equation. 
+Thus I only needed to add a new solver to solve burger's equation. 
+All other basic class and methods was defined before and required no rewriting. 
+\par
+
+In sum, I really love this project for the class. More features can be added in the future.
+
+\section{Acknowledgement}
+I want thank the lecturer for this CFD class, Professor Uri Shumlak, for teaching us all basic knowledge for this project in the class. 
+I also want to give my appreciation to Teaching Assistant for this class, Iman Datta. He provided enormous help for me to finish all the projects and assignment for this class. I really learned a lot from him.  
+\section{Notice about the code}
 The code will be updated and new features will be added in. 
 All latest code is public at GitHub: https://github.com/xinshengqin/AA543CP3.5.git. 
 
